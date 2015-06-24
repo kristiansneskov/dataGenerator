@@ -1,0 +1,31 @@
+{
+  "name": "node",
+  "version": "1.0.0",
+  "description": "data generator",
+  "main": "dataGenerator.js",
+  "dependencies": {
+    "autofixture": "^0.1.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "randgen": "^0.1.0",
+    "xmlbuilder": "^2.6.4"
+  },
+  "scripts": {
+    "test": "generate"
+  },
+  "author": "kristiansneskov",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kristiansneskov/dataGenerator.git"
+  },
+  "keywords": [
+    "testdata",
+    "reportingservices"
+  ],
+  "bugs": {
+    "url": "https://github.com/kristiansneskov/dataGenerator/issues"
+  },
+  "homepage": "https://github.com/kristiansneskov/dataGenerator#readme"
+}
