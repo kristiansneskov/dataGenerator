@@ -42,23 +42,13 @@ module.exports = function(grunt) {
 
     grunt.registerMultiTask('cbsa_recall', 'data generator.', function() {
         var dataGenerator = require('./dataGenerator.js');
-        var distribution = this.data.distribution;
-        var recalls = dataGenerator.generateData(distribution);
+        var recalls = dataGenerator.generateData(this.data.distribution);
 
-        var xmlBuilder = require('xmlbuilder');
-        var rootQuery = xmlBuilder.create('Query');
-        var xmlData = rootQuery.ele('XmlData');
-        var root = xmlData.ele('items');
-        recalls.forEach(function(elm) {
-            var item = root.ele('data');
-            item.ele('IATACode', elm.IATACode);
-            item.ele('flightName', elm.flightName);
-            item.ele('flightDate', elm.flightDate);
-            item.ele('bagDestination', elm.bagDestination);
-            item.ele('processTime', elm.processTime);
-        });
-        var fs = require('fs');
-        fs.writeFileSync('./'+this.target+'.xml', rootQuery.toString());
+        var fileGenerator = require('./fileGenerator.js');
+
+        fileGenerator.asXml(this.target, recalls);
+
+
 
     });
 };
