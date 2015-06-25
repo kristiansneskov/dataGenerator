@@ -24,7 +24,7 @@ module.exports = {
 
         var randgen = require('randgen');
         Factory.define('cbsaRecall', ['IATACode'.as(function(i) {
-                return '1' + leftPad(i, 9);
+                return '0' + leftPad(i, 9);
             }),
             'flightName'.as(function(i) {
                 return 'SK' + leftPad(i % 4 + 1, 3)
@@ -33,7 +33,13 @@ module.exports = {
                 return '2015-05-19'
             }),
             'bagDestination'.as(function(i) {
-                return 'CAN' + i % 5 + 1
+            	if (i % 3 == 0) {
+            		return "YYC";
+            	} else if (i % 3 == 1) {
+            		return "FRA";
+            	} else {
+            	    return "AUS";	
+            	}
             }),
             'processTime'.as(function(i) {
                 var val = distribution.scale * randgen.rnorm(distribution.mean, distribution.stddev);
