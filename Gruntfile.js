@@ -37,18 +37,28 @@ module.exports = function(grunt) {
 		    scale:1
 		}
 	    }
+        }, 
+        screening: {
+        	screening_case1: {}
         }
-    });
+    } 
+   );
 
-    grunt.registerMultiTask('cbsa_recall', 'data generator.', function() {
+    grunt.registerMultiTask('cbsa_recall', 'data generator for Calgary CBSA recall report', function() {
         var dataGenerator = require('./dataGenerator.js');
-        var recalls = dataGenerator.generateData(this.data.distribution);
+        var recalls = dataGenerator.cbsaData(this.data.distribution);
 
         var fileGenerator = require('./fileGenerator.js');
 
-        fileGenerator.asXml(this.target, recalls);
+        fileGenerator.cbsaAsXml(this.target, recalls);
+    });
+    grunt.registerMultiTask('screening', 'data generator for Calgary Screening Line Availability.', function() {
 
+        var dataGenerator = require('./dataGenerator.js');
+        var data = dataGenerator.screeningData(this.data);
 
+        var fileGenerator = require('./fileGenerator.js');
 
+        fileGenerator.screeningAsXml(this.target, data);
     });
 };
