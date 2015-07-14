@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "grunt": "^0.4.5",
+    "grunt-contrib-nodeunit": "^0.4.1",
     "randgen": "^0.1.0",
     "xmlbuilder": "^2.6.4"
   },
