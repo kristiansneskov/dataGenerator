@@ -56,7 +56,7 @@ function cbsaData(distribution) {
     return recalls;
 };
 
-function screeningData(distribution) {
+function screeningData(config) {
     var Factory = require('AutoFixture');
 
     function randomUniformIntInc(low, high) {
@@ -98,7 +98,7 @@ function screeningData(distribution) {
     };
 
     var randgen = require('randgen');
-    var dataPointsCount = 85;
+    var dataPointsCount = config.count;
     durationData = [];
     for (var i = 0; i < dataPointsCount; i++) {
         //There can be five different states: 
@@ -107,7 +107,7 @@ function screeningData(distribution) {
         //      console.log(measurement);
         durationData.push(measurement);
     };
-    console.log(durationData);
+   // console.log(durationData);
 
     //     for (var i = 0; i < durationData.length; i++) {
     //        console.log(durationData[i].reduce(function(a,b) {

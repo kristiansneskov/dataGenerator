@@ -39,7 +39,9 @@ module.exports = function(grunt) {
 			}
 		},
 		screening: {
-			screening_case1: {}
+			screening_case1: {
+				count: 64
+			}
 		},
 		nodeunit: {
 			all: ['spec/*spec.js'],
