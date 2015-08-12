@@ -40,7 +40,12 @@ module.exports = function(grunt) {
 		},
 		screening: {
 			screening_case1: {
-				count: 64
+				count: 64,
+				startDate : new Date(2014, 3, 5, 12),
+				intervalSizeInMin : 15,
+				sumTotal : 15,
+				lineName : 'HBS XL113',
+				factNames : ['insert','standby','fault','calibration','screen']
 			}
 		},
 		nodeunit: {
@@ -65,7 +70,7 @@ module.exports = function(grunt) {
 	grunt.registerMultiTask('screening', 'data generator for Calgary Screening Line Availability.', function() {
 
 		var dataGenerator = require('./dataGenerator.js');
-		var data = dataGenerator.screeningData(this.data);
+		var data = dataGenerator.generateTimeSeries(this.data);
 
 		var fileGenerator = require('./fileGenerator.js');
 
