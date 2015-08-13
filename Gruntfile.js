@@ -40,12 +40,47 @@ module.exports = function(grunt) {
 		},
 		screening: {
 			screening_case1: {
-				count: 64,
-				startDate : new Date(2014, 3, 5, 12),
-				intervalSizeInMin : 15,
-				sumTotal : 15,
-				lineName : 'HBS XL113',
-				factNames : ['insert','standby','fault','calibration','screen']
+				timeSeries: {
+					count: 32,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 15,
+					factNames : ['insert','standby','fault','calibration','screen'],
+					independentFactsWeight : 4
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113','HBS XL126']
+				}
+			}
+		},
+		smd: {
+			smd_case1: {
+				timeSeries: {
+					count: 64,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 100,
+					factNames : ['reject','unanalyzed','clear'],
+					independentFactsWeight : 50
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113']
+				}
+			}
+		},
+		sodt: {
+			sodt_case1: {
+				timeSeries: {
+					count: 64,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 100,
+					factNames : ['region2','region3','region4','region5','region6','region1'],
+					independentFactsWeight : 30
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113']
+				}
 			}
 		},
 		nodeunit: {
@@ -70,11 +105,57 @@ module.exports = function(grunt) {
 	grunt.registerMultiTask('screening', 'data generator for Calgary Screening Line Availability.', function() {
 
 		var dataGenerator = require('./dataGenerator.js');
-		var data = dataGenerator.generateTimeSeries(this.data);
-
+		var config = this.data;
+		var data = [];
+		for(var dim in this.data.dimensions) {
+        	this.data.dimensions[dim].forEach(function(elm) {
+            	var consts = {};
+            	consts[dim] = elm;
+            	data.push.apply(data, dataGenerator.generateTimeSeries(config.timeSeries, consts));
+        	})
+    	}
+		//var data = dataGenerator.generateTimeSeries(this.data.timeSeries, consts);
+		
 		var fileGenerator = require('./fileGenerator.js');
 
 		fileGenerator.screeningAsXml(this.target, data);
+	});
+	grunt.registerMultiTask('smd', 'data generator for Calgary Screening Machine Decisions.', function() {
+
+		var dataGenerator = require('./dataGenerator.js');
+		
+		//var data = dataGenerator.generateTimeSeries(this.data.timeSeries, this.data.dimensions);
+		var config = this.data;
+		var data = [];
+		for(var dim in this.data.dimensions) {
+        	this.data.dimensions[dim].forEach(function(elm) {
+            	var consts = {};
+            	consts[dim] = elm;
+            	data.push.apply(data, dataGenerator.generateTimeSeries(config.timeSeries, consts));
+        	})
+    	}
+		var fileGenerator = require('./fileGenerator.js');
+
+		fileGenerator.smdAsXml(this.target, data);
+	});
+
+	grunt.registerMultiTask('sodt', 'data generator for Calgary Screening Officer Decision Time.', function() {
+
+		var dataGenerator = require('./dataGenerator.js');
+		
+		//var data = dataGenerator.generateTimeSeries(this.data.timeSeries, this.data.dimensions);
+		var config = this.data;
+		var data = [];
+		for(var dim in this.data.dimensions) {
+        	this.data.dimensions[dim].forEach(function(elm) {
+            	var consts = {};
+            	consts[dim] = elm;
+            	data.push.apply(data, dataGenerator.generateTimeSeries(config.timeSeries, consts));
+        	})
+    	}
+		var fileGenerator = require('./fileGenerator.js');
+
+		fileGenerator.sodtAsXml(this.target, data);
 	});
 
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');

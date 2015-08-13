@@ -41,7 +41,7 @@ function cbsaData(distribution) {
     return recalls;
 };
 
-function generateTimeSeries(config) {
+function generateTimeSeries(config, consts) {
     var Factory = require('AutoFixture');
         
     var util = require('./util.js');
@@ -52,7 +52,7 @@ function generateTimeSeries(config) {
     for (var i = 0; i < dataPointsCount; i++) {
         //There can be five different states: 
         //Insert,Standby,Calibration,Fault,Screening
-        var measurement = util.randomNumbersWithOneDominatingAllHavingSum(0, 10, config.factNames.length, config.sumTotal);
+        var measurement = util.randomNumbersWithOneDominatingAllHavingSum(0, 10, config.factNames.length, config.sumTotal, config.independentFactsWeight);
         //console.log(measurement);
         durationData.push(measurement);
     };
@@ -69,26 +69,29 @@ function generateTimeSeries(config) {
     var counter = -1;
 
 
+
     var callbackBuilder = [
-        'summaryTimeStart'.as(function(i) {
+        'time'.as(function(i) {
             counter++;
             var d = new Date(startDate.getTime() + counter * config.intervalSizeInMin * 60000);
             return d.toISOString().slice(0, 19).replace('T', ' ');
-            //return i;
-            //return '2014-04-02 12:05:00.000';
-        }),
-        'screeningLine'.as(function(i) {
-            return config.lineName;
         })];
 
+    for (var propt in consts) {
+        callbackBuilder.push(propt.as(function(i) {
+            return consts[propt];
+        }))
+    }
+
     config.factNames.forEach(function(elm, outerIndex) {
-        callbackBuilder.push(('duration' + elm.charAt(0).toUpperCase() + elm.slice(1)).as(function(i) {
+        callbackBuilder.push((elm).as(function(i) {
             return durationData[counter][outerIndex];
         }));
-    })
-    Factory.define('screenAvail', callbackBuilder);
+    });
 
-    var data = Factory.createListOf('screenAvail', dataPointsCount);
+    Factory.define('timeSeries', callbackBuilder);
+
+    var data = Factory.createListOf('timeSeries', dataPointsCount);
     console.log(data);
     return data;
 };

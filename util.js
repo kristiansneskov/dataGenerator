@@ -21,7 +21,7 @@ function leftPad(str, length) {
         return pad + str;
     };
 
-function randomNumbersWithOneDominatingHavingSum(low, high, count, expectedSum) {
+function randomNumbersWithOneDominatingHavingSum(low, high, count, expectedSum, independentFactsWeight) {
 
         var result = [];
         //subtract one from count - that one is generated as difference between generated numbers and finalSum
@@ -33,7 +33,7 @@ function randomNumbersWithOneDominatingHavingSum(low, high, count, expectedSum) 
         var sum = result.reduce(function(a, b) {
             return a + b;
         }, 0);
-        var weight = randomUniformIntInc(0, 4);
+        var weight = randomUniformIntInc(0, independentFactsWeight);
         var data = result.map(function(elm) {
             return weight * (elm / sum);
         });
