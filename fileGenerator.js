@@ -75,6 +75,25 @@ sodtAsXml : function(name, data) {
         });
         var fs = require('fs');
         fs.writeFileSync('./'+name+'.xml', rootQuery.toString());
+},
+sodAsXml : function(name, data) {
+    var xmlBuilder = require('xmlbuilder');
+        var rootQuery = xmlBuilder.create('Query');
+        var xmlData = rootQuery.ele('XmlData');
+        var root = xmlData.ele('items');
+        //console.log(data);
+        data.forEach(function(elm) {
+            var item = root.ele('data');
+            item.ele('Time', elm.time);
+            item.ele('ScreeningLine',elm.screeningLine);
+            item.ele('ScreeningOfficerResultValid',1);
+            item.ele('ScreeningOfficerResultRejectPercent', (elm.reject/100).toString().replace(".",","));
+            item.ele('ScreeningOfficerResultTimeoutPercent', (elm.timeout/100).toString().replace(".",","));            
+            item.ele('ScreeningOfficerResultClearPercent', (elm.clear/100).toString().replace(".",","));
+            item.ele('IntervalCount', data.length);
+        });
+        var fs = require('fs');
+        fs.writeFileSync('./'+name+'.xml', rootQuery.toString());
 }
         
 }

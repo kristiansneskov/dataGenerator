@@ -41,7 +41,7 @@ module.exports = function(grunt) {
 		screening: {
 			screening_case1: {
 				timeSeries: {
-					count: 32,
+					count: 64,
 					startDate : new Date(2014, 3, 5, 12),
 					intervalSizeInMin : 15,
 					sumTotal : 15,
@@ -49,7 +49,7 @@ module.exports = function(grunt) {
 					independentFactsWeight : 4
 				},
 				dimensions : {
-					screeningLine : ['HBS XL113','HBS XL126']
+					screeningLine : ['HBS XL113']
 				}
 			}
 		},
@@ -62,6 +62,21 @@ module.exports = function(grunt) {
 					sumTotal : 100,
 					factNames : ['reject','unanalyzed','clear'],
 					independentFactsWeight : 50
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113']
+				}
+			}
+		},
+		sod: {
+			sod_case1: {
+				timeSeries: {
+					count: 64,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 100,
+					factNames : ['reject','timeout','clear'],
+					independentFactsWeight : 40
 				},
 				dimensions : {
 					screeningLine : ['HBS XL113']
@@ -157,6 +172,26 @@ module.exports = function(grunt) {
 
 		fileGenerator.sodtAsXml(this.target, data);
 	});
+
+	grunt.registerMultiTask('sod', 'data generator for Calgary Screening Officer Decisions.', function() {
+
+		var dataGenerator = require('./dataGenerator.js');
+		
+		//var data = dataGenerator.generateTimeSeries(this.data.timeSeries, this.data.dimensions);
+		var config = this.data;
+		var data = [];
+		for(var dim in this.data.dimensions) {
+        	this.data.dimensions[dim].forEach(function(elm) {
+            	var consts = {};
+            	consts[dim] = elm;
+            	data.push.apply(data, dataGenerator.generateTimeSeries(config.timeSeries, consts));
+        	})
+    	}
+		var fileGenerator = require('./fileGenerator.js');
+
+		fileGenerator.sodAsXml(this.target, data);
+	});
+	
 
 	grunt.loadNpmTasks('grunt-contrib-nodeunit');
 };

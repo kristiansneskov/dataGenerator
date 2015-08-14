@@ -92,6 +92,6 @@ function generateTimeSeries(config, consts) {
     Factory.define('timeSeries', callbackBuilder);
 
     var data = Factory.createListOf('timeSeries', dataPointsCount);
-    console.log(data);
+   // console.log(data);
     return data;
 };
