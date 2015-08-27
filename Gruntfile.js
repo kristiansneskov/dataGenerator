@@ -56,8 +56,6 @@ module.exports = function(grunt) {
 						active: true,
 						mssql: {
 							connection : {
-								user: '',
-	        					password: '',
 	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
 	        					database: 'cis_dbStatistics',
 	
@@ -93,8 +91,6 @@ module.exports = function(grunt) {
 						active: true,
 						mssql: {
 							connection : {
-								user: '',
-	        					password: '',
 	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
 	        					database: 'cis_dbStatistics',
 	
@@ -130,8 +126,6 @@ module.exports = function(grunt) {
 						active: true,
 						mssql: {
 							connection : {
-								user: '',
-	        					password: '',
 	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
 	        					database: 'cis_dbStatistics',
 	
@@ -272,6 +266,11 @@ module.exports = function(grunt) {
 		if (config.output.db.active) {
 
 			var outputGenerator = require('./fileGenerator.js');
+			var dbcredentials = require('./dbcredentials.json');
+			//insert db credentials from file not in git - fantastic security measure :)
+			config.output.db.mssql.connection.user = dbcredentials.user;
+			config.output.db.mssql.connection.password = dbcredentials.password;
+			
 			var done = this.async();
 			outputGenerator.screeningToDb(config.output.db.mssql, data, function(err) {
 				if (err) {
