@@ -39,17 +39,157 @@ module.exports = function(grunt) {
 			}
 		},
 		screening: {
-			screening_case1: {
+			daily: {
 				timeSeries: {
-					count: 64,
-					startDate : new Date(2014, 3, 5, 12),
-					intervalSizeInMin : 15,
-					sumTotal : 15,
+					count: 1440,
+					startDate : new Date(2015, 4, 14, 12),
+					intervalSizeInMin : 1,
+					sumTotal : 60,
 					factNames : ['insert','standby','fault','calibration','screen'],
-					independentFactsWeight : 4
+					independentFactsWeight : 10
 				},
 				dimensions : {
-					screeningLine : ['HBS XL113']
+					screeningLine : ['HBS XL113','HBS XL126','HBS XL143', 'HBS XL156', 'HBS XO111', 'HBS XO121']
+				},
+				output : {
+					db : {
+						active: true,
+						mssql: {
+							connection : {
+								user: '',
+	        					password: '',
+	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
+	        					database: 'cis_dbStatistics',
+	
+        						options: {
+            						encrypt: false // Use this if you're on Windows Azure
+        						}
+        					},
+        					target: {
+        						name : 'tblScreeningLineAvailabilitySummary',
+        						clean: true
+        					}
+						}
+					},
+					xml: {
+						active: false
+					}
+				}
+			},
+			weekly: {
+				timeSeries: {
+					count: 10080,
+					startDate : new Date(2015, 4, 14, 12),
+					intervalSizeInMin : 1,
+					sumTotal : 60,
+					factNames : ['insert','standby','fault','calibration','screen'],
+					independentFactsWeight : 10
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113','HBS XL126','HBS XL143', 'HBS XL156', 'HBS XO111', 'HBS XO121']
+				},
+				output : {
+					db : {
+						active: true,
+						mssql: {
+							connection : {
+								user: '',
+	        					password: '',
+	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
+	        					database: 'cis_dbStatistics',
+	
+        						options: {
+            						encrypt: false // Use this if you're on Windows Azure
+        						}
+        					},
+        					target: {
+        						name : 'tblScreeningLineAvailabilitySummary',
+        						clean: true
+        					}
+						}
+					},
+					xml: {
+						active: false
+					}
+				}
+			},
+			monthly: {
+				timeSeries: {
+					count: 43200,
+					startDate : new Date(2015, 3, 1, 12), //Remember months are zero based!
+					intervalSizeInMin : 1,
+					sumTotal : 60,
+					factNames : ['insert','standby','fault','calibration','screen'],
+					independentFactsWeight : 10
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113','HBS XL126','HBS XL143', 'HBS XL156', 'HBS XO111', 'HBS XO121']
+				},
+				output : {
+					db : {
+						active: true,
+						mssql: {
+							connection : {
+								user: '',
+	        					password: '',
+	        					server: 'localhost', // You can use 'localhost\\instance' to connect to named instance
+	        					database: 'cis_dbStatistics',
+	
+        						options: {
+            						encrypt: false // Use this if you're on Windows Azure
+        						}
+        					},
+        					target: {
+        						name : 'tblScreeningLineAvailabilitySummary',
+        						clean: true
+        					}
+						}
+					},
+					xml: {
+						active: false
+					}
+				}
+			},
+			screening_case2: {
+				timeSeries: {
+					count: 4,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 900,
+					factNames : ['insert','standby','fault','calibration','screen'],
+					independentFactsWeight : 100
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113','HBS XL126','HBS XL143', 'HBS XL156', 'HBS XO111', 'HBS XO121']
+				},
+				output : {
+					db : {
+						active: false
+					},
+					xml : {
+						active: true
+					}
+				}
+			},
+			screening_case3: {
+				timeSeries: {
+					count: 32,
+					startDate : new Date(2014, 3, 5, 12),
+					intervalSizeInMin : 15,
+					sumTotal : 900,
+					factNames : ['insert','standby','fault','calibration','screen'],
+					independentFactsWeight : 100
+				},
+				dimensions : {
+					screeningLine : ['HBS XL113','HBS XL126']
+				},
+				output : {
+					db : {
+						active: false
+					},
+					xml : {
+						active: true
+					}
 				}
 			}
 		},
@@ -129,11 +269,27 @@ module.exports = function(grunt) {
             	data.push.apply(data, dataGenerator.generateTimeSeries(config.timeSeries, consts));
         	})
     	}
-		//var data = dataGenerator.generateTimeSeries(this.data.timeSeries, consts);
-		
-		var fileGenerator = require('./fileGenerator.js');
+		if (config.output.db.active) {
 
-		fileGenerator.screeningAsXml(this.target, data);
+			var outputGenerator = require('./fileGenerator.js');
+			var done = this.async();
+			outputGenerator.screeningToDb(config.output.db.mssql, data, function(err) {
+				if (err) {
+					grunt.log.error(err);
+					done(false);
+				} else {
+					grunt.log.writeln('Inserted ' + data.length + ' entities into ' + config.output.db.mssql.target.name);
+					done();	
+				}
+			});
+		} 
+		if (config.output.xml.active) {
+			var fileGenerator = require('./fileGenerator.js');
+
+			fileGenerator.screeningAsXml(this.target, data);	
+			grunt.log.writeln('Wrote ' + data.length + ' entities to xml');
+		}
+		
 	});
 	grunt.registerMultiTask('smd', 'data generator for Calgary Screening Machine Decisions.', function() {
 

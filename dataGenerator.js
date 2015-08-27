@@ -54,6 +54,11 @@ function generateTimeSeries(config, consts) {
         //Insert,Standby,Calibration,Fault,Screening
         var measurement = util.randomNumbersWithOneDominatingAllHavingSum(0, 10, config.factNames.length, config.sumTotal, config.independentFactsWeight);
         //console.log(measurement);
+        measurement.forEach(function(elm) {
+            if (Number.isNaN(elm)) {
+                console.log(elm);
+            }
+        })
         durationData.push(measurement);
     };
     //console.log(durationData);

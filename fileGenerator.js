@@ -34,6 +34,93 @@ screeningAsXml : function(name, data) {
         var fs = require('fs');
         fs.writeFileSync('./'+name+'.xml', rootQuery.toString());
 },
+screeningToDb : function(config, data, doneCallback) {
+    var sql = require('mssql'); 
+
+    var connection = new sql.Connection(config.connection, function(err) {
+        if (err) console.log(err);
+
+        var request = new sql.Request(connection); // or: var request = connection.request();
+ 
+    if (config.target.clean) {
+        console.log('cleaning up ' + config.target.name);
+        request.query('delete from ' + config.target.name, function(err) {
+            if (err) doneCallback(err);
+            insertRecursive(request, data, connection, config.target, 0, doneCallback);
+        })
+    } else {
+        insertRecursive(request, data, connection, config.target, 0, doneCallback);
+        
+    }
+
+    function insertRecursive(request, data, connection, config, count, doneFunc) {
+        var mappedEntity = mapToSqlParam(data[count]);
+        if (mappedEntity.indexOf('NaN') > 0)
+            console.log('ERROR: ' + mappedEntity);
+        var query = 'insert into ' + config.name + ' values ('+mappedEntity+')';
+        request.query(query, function(err, recordset) {
+            if (err) doneFunc(err);
+            if (count === (data.length - 1)) {
+                connection.close();
+                doneFunc();
+            } else {
+                var newCount = count + 1;
+        
+                insertRecursive(request, data, connection, config, newCount, doneFunc);
+            }      
+        });
+    }
+
+
+    function performInsert(request, data, connection, config, doneFunc) {
+        data.forEach(function(elm, index) {
+
+        var mappedEntity = mapToSqlParam(elm);
+        var query = 'insert into ' + config.name + ' values ('+mappedEntity+')';
+        request.query(query, function(err, recordset) {
+            if (index === (data.length-1)) {
+                setTimeout(function() {
+                    connection.close();
+                    doneFunc();
+                }, 5000)
+
+      }          
+        
+        });
+        });
+        request.on('done', function(returnValue) {
+
+        });
+
+        
+    }
+
+    function mapToSqlParam(elm) {
+        return  '\'' + elm.time + 
+                '\',\'' + elm.screeningLine + 
+                '\','+ Math.round(elm.insert) + 
+                ',' + Math.round(elm.standby) + 
+                ',' + Math.round(elm.fault) + 
+                ',' + Math.round(elm.calibration) + 
+                ',' + Math.round(elm.screen);
+    }
+
+        
+    
+
+    // Stored Procedure
+/*
+    var request = new sql.Request(connection);
+    request.input('input_parameter', sql.Int, 10);
+    request.output('output_parameter', sql.VarChar(50));
+    request.execute('procedure_name', function(err, recordsets, returnValue) {
+        // ... error checks
+
+        console.dir(recordsets);
+    });
+*/
+    });
+},
 smdAsXml : function(name, data) {
     var xmlBuilder = require('xmlbuilder');
         var rootQuery = xmlBuilder.create('Query');
